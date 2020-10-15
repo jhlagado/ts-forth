@@ -1,0 +1,9 @@
+{
+  "include": ["./src/**/*"],
+  "compilerOptions": {
+    "lib": ["dom", "es2015", "es2016", "es2017", "es2018", "es2019", "esnext", "esnext.asynciterable"],
+    "esModuleInterop": true,
+    "strict": true
+  },
+  "files": ["custom.d.ts"]
+}
