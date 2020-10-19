@@ -1,22 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ts-forth</title>
-  <link rel="stylesheet" type="text/css" href="index.css">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.18.3/js/jquery.terminal.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.18.3/css/jquery.terminal.min.css" rel="stylesheet"/>
+  <style rel="stylesheet">
+    .terminal {
+      --size: 2;
+    }
+  </style>
+  <script>
+  jQuery(function($, undefined) {
+    $('body').terminal(function(command) {
+        if (command !== '') {
+            var result = window.eval(command);
+            if (result != undefined) {
+                this.echo(String(result));
+            }
+        }
+    }, {
+        greetings: 'Javascript Interpreter',
+        name: 'js_demo',
+        height: window.innerWidth,
+        width: window.innerHeight,
+        prompt: 'js> '
+    });
+});
+  </script>
 </head>
-<body>
-
-  <main>
-    <section id="repl">
-      <section id="output"></section>
-      <section>
-        <textarea id="input" autofocus="true" cols="80" rows="6" onkeyup="repl.interpret(event)"></textarea>
-      </section>
-      Ctrl+p and Ctrl+n for repl history
-    </section>
-
-    <section id="stack"></section>
-  </main>
-
-</body>
+<body></body>
 </html>
