@@ -1,30 +1,29 @@
-import { CELL, CELLMASK, CELLWIDTH, Ptr, uservars } from './constants';
+import { CELL, CELLMASK, CELLWIDTH, uservars } from './constants';
+import { mem } from './memory';
+import { Ptr } from './types';
 import {
-    getMem,
-    ip,
-    mem,
+    IP,
     ppeek,
     ppoke,
     ppop,
     ppush,
-    psp,
+    PSP,
     rpeek,
     rpop,
     rpush,
-    rsp,
+    RSP,
     setIP,
-    setMem,
     setPSP,
     setRSP,
     setRun,
 } from './vm';
 
 function docon(pfa: Ptr): void {
-    ppush(getMem(pfa));
+    ppush(mem.getUint32(pfa));
 }
 
 function dovar(pfa: Ptr): void {
-    ppush(getMem(pfa)); /* pf holds variable address */
+    ppush(mem.getUint32(pfa)); /* pf holds variable address */
 }
 
 function dorom(pfa: Ptr): void {
@@ -32,12 +31,12 @@ function dorom(pfa: Ptr): void {
 }
 
 function enter(pfa: Ptr): void {
-    rpush(ip); /* push old IP on return stack */
+    rpush(IP); /* push old IP on return stack */
     setIP(pfa); /* IP points to thread */
 }
 
 function douser(pfa: Ptr): void {
-    const i = getMem(pfa); /* pf holds user var index */
+    const i = mem.getUint32(pfa); /* pf holds user var index */
     ppush(uservars + i); /* stack adrs of user var */
 }
 
@@ -60,16 +59,16 @@ function exit(_pfa: Ptr): void {
 }
 
 function execute(_pfa: Ptr): void {
-    let w = getMem(ppop()); /* fetch word address from stack */
-    const x = getMem(w); /* fetch function adrs from word def */
+    let w = mem.getUint32(ppop()); /* fetch word address from stack */
+    const x = mem.getUint32(w); /* fetch function adrs from word def */
     w += CELL;
     const f = codeTable[x];
     f(w); /* call function w/adrs of word def */
 }
 
 function lit(_pfa: Ptr): void {
-    ppush(getMem(ip)); /* fetch inline value */
-    setIP(ip + CELL);
+    ppush(mem.getUint32(IP)); /* fetch inline value */
+    setIP(IP + CELL);
 }
 
 function dup(_pfa: Ptr): void {
@@ -128,7 +127,7 @@ function rfetch(_pfa: Ptr): void {
 }
 
 function spfetch(_pfa: Ptr): void {
-    ppush(psp);
+    ppush(PSP);
 }
 
 function spstore(_pfa: Ptr): void {
@@ -136,7 +135,7 @@ function spstore(_pfa: Ptr): void {
 }
 
 function rpfetch(_pfa: Ptr): void {
-    ppush(rsp);
+    ppush(RSP);
 }
 
 function rpstore(_pfa: Ptr): void {
@@ -145,22 +144,22 @@ function rpstore(_pfa: Ptr): void {
 
 function fetch(_pfa: Ptr): void {
     const ptr = ppeek();
-    ppoke(getMem(ptr));
+    ppoke(mem.getUint32(ptr));
 }
 
 function store(_pfa: Ptr): void {
     const ptr = ppop();
-    setMem(ptr, ppop());
+    mem.setUint32(ptr, ppop());
 }
 
 function cfetch(_pfa: Ptr): void {
     const ptr = ppeek();
-    ppoke(getMem(ptr));
+    ppoke(mem.getUint32(ptr));
 }
 
 function cstore(_pfa: Ptr): void {
     const ptr = ppop();
-    setMem(ptr, ppop());
+    mem.setUint32(ptr, ppop());
 }
 
 function plus(_pfa: Ptr): void {
@@ -170,7 +169,7 @@ function plus(_pfa: Ptr): void {
 
 function plusstore(_pfa: Ptr): void {
     const ptr = ppop();
-    setMem(ptr, getMem(ptr) + ppop());
+    mem.setUint32(ptr, mem.getUint32(ptr) + ppop());
 }
 
 function mplus(_pfa: Ptr): void {
@@ -292,17 +291,17 @@ function greater(_pfa: Ptr): void {
 function branch(_pfa: Ptr): void {
     /* Tbranch,-4  loops back to itself */
     /* Tbranch,+4  is a no-op */
-    const offset = getMem(ip); /* fetch inline offset */
-    setIP(ip + offset);
+    const offset = mem.getUint32(IP); /* fetch inline offset */
+    setIP(IP + offset);
 }
 
 function qbranch(_pfa: Ptr): void {
     /* Tbranch,-4  loops back to itself */
     if (ppop() === 0) {
-        const offset = getMem(ip); /* fetch inline offset */
-        setIP(ip + offset);
+        const offset = mem.getUint32(IP); /* fetch inline offset */
+        setIP(IP + offset);
     } else {
-        setIP(ip + CELL);
+        setIP(IP + CELL);
     }
 }
 

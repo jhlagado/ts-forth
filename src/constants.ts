@@ -1,11 +1,9 @@
-export type Ptr = number;
-export type Fn = (pfa: Ptr) => void;
-
 export const NULL = 0;
 export const CELL = 4; /* CPU dependency, # of bytes/cell */
 
 export const MEM_SIZE = 1000000;
 export const MEM_START = 0;
+export const TABLE_SIZE = 1000;
 
 export const CELLWIDTH = 32; /* # of bits/cell */
 export const CELLMASK = 0xffffffff; /* mask for CELLWIDTH bits */
@@ -22,13 +20,6 @@ export const RAMDICT_SIZE = 0x2000;
 export const ROMDICT_SIZE = 0x400;
 
 export const IMMEDIATE = 1; /* immediate bit in flags */
-
-export type Header = {
-    cfa: Ptr /* pointer to high level def'n */;
-    link: Ptr /* pointer to previous header */;
-    flags: number /* immed flag and others */;
-    nfa: string /* inline name string */;
-};
 
 export const MEM_END = MEM_START + MEM_SIZE;
 

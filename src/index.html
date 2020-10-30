@@ -1,32 +1,25 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.18.3/js/jquery.terminal.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.18.3/css/jquery.terminal.min.css" rel="stylesheet"/>
-  <style rel="stylesheet">
-    .terminal {
-      --size: 2;
-    }
-  </style>
-  <script>
-  jQuery(function($, undefined) {
-    $('body').terminal(function(command) {
-        if (command !== '') {
-            var result = window.eval(command);
-            if (result != undefined) {
-                this.echo(String(result));
-            }
-        }
-    }, {
-        greetings: 'Javascript Interpreter',
-        name: 'js_demo',
-        height: window.innerWidth,
-        width: window.innerHeight,
-        prompt: 'js> '
-    });
-});
-  </script>
+    <link rel="stylesheet" href="terminal.css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
 </head>
-<body></body>
+
+<body>
+    <div id="screen">
+        <div id="Container">
+            <div id="logger">
+                <div id="wrapper">
+                </div>
+            </div>
+            <div id="input">
+                <p>&gt;</p>
+                <input id="input_source" type="command" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
+            </div>
+        </div>
+    </div>
+    <script src="index.ts"></script>
+</body>
+
 </html>

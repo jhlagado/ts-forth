@@ -13,7 +13,7 @@ export const debug = (d: number): void => {
 };
 
 export const key = (): number => {
-    let c;
+    let c: string;
     while (c == null || c == '') {
         c = window.prompt('Enter character');
     }
