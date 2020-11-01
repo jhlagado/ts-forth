@@ -1,5 +1,5 @@
-import { Ptr } from './constants';
-import { mem } from './vm';
+import { mem } from "./memory";
+import { Ptr } from "./types";
 
 const buffer: number[] = [];
 
@@ -12,13 +12,13 @@ export const debug = (d: number): void => {
     console.log('DEBUG: ', d, String.fromCharCode(d));
 };
 
-export const key = (): number => {
-    let c: string;
-    while (c == null || c == '') {
-        c = window.prompt('Enter character');
-    }
-    return c.charCodeAt(0);
-};
+// export const key = (): number => {
+//     let c: string;
+//     while (c == null || c == '') {
+//         c = window.prompt('Enter character');
+//     }
+//     return c.charCodeAt(0);
+// };
 
 export const accept = (ptr: Ptr, maxlength: number): number => {
     const input = (window.prompt('Enter text') || '').substr(0, maxlength);

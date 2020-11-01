@@ -1,0 +1,42 @@
+import { CELL } from './constants';
+import { PSP, RSP, setPSP, setRSP } from './globals';
+import { mem } from './memory';
+
+const OFFSET = (n: number): number => n * CELL; /* see CELL above, = 4 */
+export const ppop = (): number => {
+    const value = mem.getUint32(PSP);
+    setPSP(PSP + CELL);
+    return value;
+};
+
+export const ppush = (value = 0): void => {
+    setPSP(PSP - CELL);
+    mem.setUint32(PSP, value);
+};
+
+export const ppeek = (offset = 0): number => {
+    return mem.getUint32(PSP + OFFSET(offset));
+};
+
+export const ppoke = (value: number, offset = 0): void => {
+    mem.setUint32(PSP + OFFSET(offset), value);
+};
+
+export const rpop = (): number => {
+    const value = mem.getUint32(RSP);
+    setRSP(RSP + CELL);
+    return value;
+};
+
+export const rpush = (value: number): void => {
+    setRSP(RSP - CELL);
+    mem.setUint32(RSP, value);
+};
+
+export const rpeek = (offset = 0): number => {
+    return mem.getUint32(RSP + OFFSET(offset));
+};
+
+export const rpoke = (value: number, offset = 0): void => {
+    mem.setUint32(RSP + OFFSET(offset), value);
+};

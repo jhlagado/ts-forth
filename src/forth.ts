@@ -1,9 +1,31 @@
-import { PRIMITIVE, HEADER } from './utils';
+import { HEADER, PRIMITIVE, THREAD } from './asm';
+import { PSTACKSIZE, RSTACKSIZE, CELL } from './constants';
+import { mem, table } from './memory';
+import { IP, run, setIP, setPSP, setRSP, setRun } from './globals';
 
-export const exit = PRIMITIVE('exit');
-export const execute = PRIMITIVE('execute');
+export const bye = PRIMITIVE('bye');
+// export const exit = PRIMITIVE('exit');
+// export const execute = PRIMITIVE('execute');
 export const lit = PRIMITIVE('lit');
 export const dup = PRIMITIVE('dup');
+const cold = THREAD('enter', lit, 2, dup, bye);
+
+export const interpreter = () => {
+    setPSP(PSTACKSIZE - 1);
+    setRSP(RSTACKSIZE - 1);
+    setIP(cold + CELL);
+    setRun(true);
+    while (run) {
+        const w = mem.getInt32(IP);
+        setIP(IP + CELL);
+        const x = mem.getInt32(w);
+        const xt = table[x];
+        xt(w + CELL);
+    }
+};
+
+interpreter();
+
 // export const swap = PRIMITIVE('swap);
 // export const tor = PRIMITIVE('tor);
 // export const rfetch = PRIMITIVE('rfetch);
@@ -35,7 +57,6 @@ export const dup = PRIMITIVE('dup');
 // export const dothhhh = PRIMITIVE('dothhhh);
 // export const dots = PRIMITIVE('dots);
 // export const dump = PRIMITIVE('dump);
-// export const bye = PRIMITIVE('bye);
 
 // export const idp = [ CODE(douser, LIT(10)];          /* not used in this model */
 
@@ -471,32 +492,12 @@ export const dup = PRIMITIVE('dup');
 //  * INNER INTERPRETER
 //  */
 
-// function interpreter(void)
-// {
-//     void (*xt);     /* pointer to code function */
-//     void *w, *x;            /* generic pointers */
-
-//     psp = PSTACK - PSTACKSIZE-1;
-//     rsp = RSTACK - RSTACKSIZE-1;
-//     ip = &Tcold;
-//     ip += CELL;
-//     run = 1;                /* set to zero to terminate interpreter */
-//     while (run) {
-//         w = *(void **)ip;       /* fetch word address from thread */
-//         ip += CELL;
-//         x = *(void **)w;        /* fetch function adrs from word def */
-//         xt = (void (*)())x;     /* too much casting! */
-//         w += CELL;
-//         (*xt)(w);               /* call function w/adrs of word def */
-//     }
-// }
-
 // /*
 //  * DICTIONARY HEADERS
 //  */
 
-HEADER(exit, 0, 'exit');
-HEADER(execute, 0, 'EXECUTE');
+// HEADER(exit, 0, 'exit');
+// HEADER(execute, 0, 'EXECUTE');
 HEADER(lit, 0, 'lit');
 HEADER(dup, 0, 'DUP');
 // HEADER(qdup, dup, 0, "\004?DUP");

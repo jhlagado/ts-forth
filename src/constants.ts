@@ -22,14 +22,3 @@ export const ROMDICT_SIZE = 0x400;
 export const IMMEDIATE = 1; /* immediate bit in flags */
 
 export const MEM_END = MEM_START + MEM_SIZE;
-
-export const PSTACK = MEM_END; /* grows down from end */
-export const RSTACK = PSTACK - PSTACKSIZE; /* grows down from end */
-export const LSTACK = RSTACK - RSTACKSIZE; /* grows down from end */
-export const uservars = MEM_START;
-export const tibarea = uservars + USERSIZE;
-export const padarea = tibarea + TIBSIZE;
-export const holdarea = padarea + PADSIZE;
-export const RAMDICT = holdarea + HOLDSIZE;
-export const ROMDICT = RAMDICT + RAMDICT_SIZE;
-export const free = ROMDICT + ROMDICT_SIZE;

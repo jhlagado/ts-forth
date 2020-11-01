@@ -1,22 +1,17 @@
-import { CELL, CELLMASK, CELLWIDTH, uservars } from './constants';
-import { mem } from './memory';
+import { CELL, CELLMASK, CELLWIDTH } from './constants';
+import { mem, uservars } from './memory';
 import { Ptr } from './types';
 import {
-    IP,
     ppeek,
     ppoke,
     ppop,
     ppush,
-    PSP,
     rpeek,
     rpop,
     rpush,
-    RSP,
-    setIP,
-    setPSP,
-    setRSP,
-    setRun,
-} from './vm';
+} from './stacks';
+import { IP, setIP, setRun } from './utils';
+import { PSP, setPSP, RSP, setRSP } from './globals';
 
 function docon(pfa: Ptr): void {
     ppush(mem.getUint32(pfa));
