@@ -1,6 +1,6 @@
-import { CELL } from './constants';
-import { PSP, RSP, setPSP, setRSP } from './globals';
 import { mem } from './memory';
+import { CELL, PSTACKSIZE } from './constants';
+import { PSP, RSP, setPSP, setRSP } from './variables';
 
 const OFFSET = (n: number): number => n * CELL; /* see CELL above, = 4 */
 export const ppop = (): number => {
@@ -20,6 +20,11 @@ export const ppeek = (offset = 0): number => {
 
 export const ppoke = (value: number, offset = 0): void => {
     mem.setUint32(PSP + OFFSET(offset), value);
+};
+
+export const pdepth = (): number => {
+    const pEnd = PSTACKSIZE - 1;
+    return (pEnd - PSP) / CELL;
 };
 
 export const rpop = (): number => {

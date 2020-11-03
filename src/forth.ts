@@ -1,31 +1,44 @@
-import { HEADER, PRIMITIVE, THREAD } from './asm';
+import { IP, run, setIP, setPSP, setRSP, setRun } from './variables';
+import { HEADER, PRIMITIVE } from './code';
 import { PSTACKSIZE, RSTACKSIZE, CELL } from './constants';
-import { mem, table } from './memory';
-import { IP, run, setIP, setPSP, setRSP, setRun } from './globals';
+import { codeTable } from './primitives';
+import { Ptr } from './types';
+import { mem } from './memory';
 
 export const bye = PRIMITIVE('bye');
-// export const exit = PRIMITIVE('exit');
-// export const execute = PRIMITIVE('execute');
 export const lit = PRIMITIVE('lit');
 export const dup = PRIMITIVE('dup');
-const cold = THREAD('enter', lit, 2, dup, bye);
+export const key = PRIMITIVE('key');
 
-export const interpreter = () => {
+export const interpreter = (word: Ptr) => {
     setPSP(PSTACKSIZE - 1);
     setRSP(RSTACKSIZE - 1);
-    setIP(cold + CELL);
+    setIP(word + CELL);
     setRun(true);
-    while (run) {
-        const w = mem.getInt32(IP);
-        setIP(IP + CELL);
-        const x = mem.getInt32(w);
-        const xt = table[x];
-        xt(w + CELL);
-    }
+    return new Promise((resolve) => {
+        const loop = (restart = false) => {
+            const IP1 = restart ? IP - CELL : IP;
+            const w = mem.getInt32(IP1);
+            setIP(IP1 + CELL);
+            const x = mem.getInt32(w);
+            const xt = codeTable[x];
+            const result = xt(w + CELL, restart);
+            if (run) {
+                if (result) {
+                    setTimeout(() => loop(true));
+                } else {
+                    loop();
+                }
+            } else {
+                resolve();
+            }
+        };
+        loop();
+    });
 };
 
-interpreter();
-
+// export const exit = PRIMITIVE('exit');
+// export const execute = PRIMITIVE('execute');
 // export const swap = PRIMITIVE('swap);
 // export const tor = PRIMITIVE('tor);
 // export const rfetch = PRIMITIVE('rfetch);
