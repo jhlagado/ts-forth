@@ -1,4 +1,6 @@
-import { MEM_START, MEM_SIZE, CELL, DEBUG } from './constants';
+import {
+    MEM_START, MEM_SIZE, CELL, DEBUG,
+} from './constants';
 import { Ptr } from './types';
 
 export const buffer = new ArrayBuffer(MEM_SIZE);
@@ -38,7 +40,7 @@ export const defStr = (str: string, info: string): Ptr => {
     const result = asmPtr;
     if (DEBUG) console.log(`${info} starts: ${result} size: ${str.length}`);
     const bytes = new TextEncoder().encode(str);
-    const length = bytes.length;
+    const { length } = bytes;
     for (let i = 0; i < length; i++) {
         mem.setUint8(asmPtr, bytes[i]);
         setAsmPtr(asmPtr + 1);

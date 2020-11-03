@@ -13,15 +13,6 @@ body {
     overflow-y: scroll;
 }
 
-/* #Container,
-#Container>div {
-    -moz-transform: rotateX(180deg);
-    -ms-transform: rotateX(180deg);
-    -o-transform: rotate(180deg);
-    -webkit-transform: rotateX(180deg);
-    transform: rotateX(180deg);
-} */
-
 #wrapper {
     display: table-cell;
     vertical-align: bottom;

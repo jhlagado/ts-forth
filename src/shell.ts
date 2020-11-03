@@ -1,5 +1,5 @@
-import { mem } from "./memory";
-import { Ptr } from "./types";
+import { mem } from './memory';
+import { Ptr } from './types';
 
 const buffer: number[] = [];
 

@@ -1,23 +1,46 @@
-import { bye, dup, interpreter, key, lit } from './forth';
+import {
+    bye, dup, exit, interpreter, key, lit,
+} from './forth';
 import { pdepth, ppop } from './stacks';
-import { THREAD } from './code';
-import { setInputBuffer } from './io';
+import { appendInputBuffer, setInputBuffer } from './io';
+import { THREAD } from './utils';
 
 it('should dup literal 2', async () => {
-    const cold = THREAD('enter', lit, 2, dup, bye);
-    await interpreter(cold);
+    const t = THREAD('enter', lit, 2, dup, bye);
+    await interpreter(t);
     expect(pdepth()).toBe(2);
     expect(ppop()).toBe(2);
     expect(ppop()).toBe(2);
     expect(pdepth()).toBe(0);
 });
 
-it('should ', async () => {
-    setInputBuffer('abc');
-    const cold = THREAD('enter', key, dup, bye);
-    await interpreter(cold);
-    expect(pdepth()).toBe(2);
+it('should call a thread from another thread', async () => {
+    const t = THREAD('enter', lit, 5, exit);
+    const t1 = THREAD('enter', t, bye);
+    await interpreter(t1);
+    expect(pdepth()).toBe(1);
+    expect(ppop()).toBe(5);
+});
+
+it('should read a char', async () => {
+    setTimeout(() => {
+        appendInputBuffer('abc');
+    }, 100);
+    setInputBuffer('');
+    const t = THREAD('enter', key, bye);
+    await interpreter(t);
+    expect(pdepth()).toBe(1);
     expect(ppop()).toBe(97);
+});
+
+it('should read a char from a thread', async () => {
+    setTimeout(() => {
+        appendInputBuffer('abc');
+    }, 100);
+    setInputBuffer('');
+    const t = THREAD('enter', key, exit);
+    const t1 = THREAD('enter', t, bye);
+    await interpreter(t1);
+    expect(pdepth()).toBe(1);
     expect(ppop()).toBe(97);
-    expect(pdepth()).toBe(0);
 });

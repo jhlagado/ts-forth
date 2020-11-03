@@ -1,14 +1,31 @@
-import { log } from './terminal';
+import { appendInputBuffer, outputBuffer, setOutputBuffer } from './io';
 
-log('ts-forth');
+export const log = (message: string): void => {
+    const wrapper = document.getElementById('wrapper');
+    wrapper!.innerHTML += `<div class='log'><p>${message}</p></div>`;
+};
 
-const buffer:string[] = [];
-function x() {
-    setTimeout(x, 1000);
-    if (buffer.length) {
-        log(buffer.join(''));
-        buffer.length = 0;
+const inputSource = document.getElementById('input_source')!;
+inputSource.onblur = () => {
+    inputSource.focus();
+};
+
+inputSource.addEventListener('keyup', (event: KeyboardEvent) => {
+    event.preventDefault();
+    if (!(event.keyCode === 13)) return;
+    const text = (inputSource as any).value;
+    (inputSource as any).value = '';
+    appendInputBuffer(text);
+    log(`> ${text}`);
+});
+
+const loop = () => {
+    setTimeout(loop);
+    if (outputBuffer.length > 0) {
+        log(outputBuffer);
+        setOutputBuffer('');
     }
-}
-x();
-buffer.push('b');
+};
+loop();
+
+setOutputBuffer('ts-forth');

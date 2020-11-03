@@ -1,18 +1,21 @@
-import { IP, run, setIP, setPSP, setRSP, setRun } from './variables';
-import { HEADER, PRIMITIVE } from './code';
+/* eslint-disable import/extensions */
+import {
+    IP, pstack, rstack, run, setIP, setPSP, setRSP, setRun,
+} from './variables';
 import { PSTACKSIZE, RSTACKSIZE, CELL } from './constants';
-import { codeTable } from './primitives';
 import { Ptr } from './types';
 import { mem } from './memory';
+import { PRIMITIVE, HEADER, codeTable } from './utils';
 
+export const exit = PRIMITIVE('exit');
 export const bye = PRIMITIVE('bye');
 export const lit = PRIMITIVE('lit');
 export const dup = PRIMITIVE('dup');
 export const key = PRIMITIVE('key');
 
-export const interpreter = (word: Ptr) => {
-    setPSP(PSTACKSIZE - 1);
-    setRSP(RSTACKSIZE - 1);
+export const interpreter = (word: Ptr): Promise<unknown> => {
+    setPSP(pstack + PSTACKSIZE - 1);
+    setRSP(rstack + RSTACKSIZE - 1);
     setIP(word + CELL);
     setRun(true);
     return new Promise((resolve) => {
