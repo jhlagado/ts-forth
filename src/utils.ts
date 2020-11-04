@@ -1,6 +1,4 @@
-import {
-    asmPtr, def32, def8, defStr,
-} from './memory';
+import { asmPtr, def32, def8, defStr } from './memory';
 import * as codeDict from './primitives';
 import { DEBUG, NULL } from './constants';
 import { Primitive, Ptr } from './types';
@@ -12,19 +10,13 @@ export const asBool = (b: boolean): number => (b ? -1 : 0);
 
 export const LIT = (n: number): number => n;
 
-export const PRIMITIVE = (key: string): Ptr => {
-    const ptr = asmPtr;
-    def32(codeKeys.indexOf(key), `word: ${key}`);
-    return ptr;
-};
-
-export const THREAD = (key: string, ...body: number[]): Ptr => {
-    const ptr = PRIMITIVE(key);
-    for (const item of body) {
-        def32(item, `${item}`);
-    }
-    return ptr;
-};
+export const getPrimitives = (): { [key: string]: Ptr } =>
+    codeKeys.reduce((acc, key) => {
+        const ptr = asmPtr;
+        def32(codeKeys.indexOf(key), `word: ${key}`);
+        acc[key] = ptr;
+        return acc;
+    }, {});
 
 let prevPtr = NULL;
 export const HEADER = (cfa: Ptr, flags: number, name: string): Ptr => {
@@ -36,5 +28,14 @@ export const HEADER = (cfa: Ptr, flags: number, name: string): Ptr => {
     def32(flags, 'flags');
     def8(name.length, 'name length');
     defStr(name, 'name');
+    return ptr;
+};
+
+export const THREAD = (key: string, ...body: number[]): Ptr => {
+    const ptr = asmPtr;
+    def32(codeKeys.indexOf('enter'), `word: ${key}`);
+    for (const item of body) {
+        def32(item, `${item}`);
+    }
     return ptr;
 };

@@ -1,41 +1,58 @@
-/* eslint-disable import/extensions */
 import { IP, pstack, rstack, run, setIP, setPSP, setRSP, setRun } from './variables';
 import { PSTACKSIZE, RSTACKSIZE, CELL } from './constants';
 import { Ptr } from './types';
 import { mem } from './memory';
-import { PRIMITIVE, HEADER, codeTable } from './utils';
+import { codeTable } from './utils';
 
-export const $exit = PRIMITIVE('$exit');
-export const $yield = PRIMITIVE('$yield');
-export const bye = PRIMITIVE('bye');
-export const lit = PRIMITIVE('lit');
-export const dup = PRIMITIVE('dup');
-export const key = PRIMITIVE('key');
 
-export const interpreter = (word: Ptr): Promise<unknown> => {
+export /**
+ *
+ *
+ * @param {Ptr} word
+ */
+const interpReset = (word: Ptr): void => {
     setPSP(pstack + PSTACKSIZE - 1);
     setRSP(rstack + RSTACKSIZE - 1);
     setIP(word + CELL);
     setRun(true);
+}
+
+export /**
+ *
+ *
+ * @param {boolean} [restart]
+ * @return {*}  {boolean}
+ */
+const interpTick = (restart?: boolean): boolean => {
+    let restarting = restart;
+    while (run) {
+        const IP1 = restarting ? IP - CELL : IP;
+        const w = mem.getInt32(IP1);
+        setIP(IP1 + CELL);
+        const x = mem.getInt32(w);
+        const xt = codeTable[x];
+        const result = xt(w + CELL, restarting);
+        restarting = false;
+        if (result) return true;
+    }
+    return false;
+};
+
+export 
+/**
+ *
+ *
+ * @param {Ptr} word
+ * @return {*}  {Promise<unknown>}
+ */
+const interpreter = (word: Ptr): Promise<unknown> => {
+    interpReset(word);
     return new Promise((resolve) => {
-        const loop = (restart = false) => {
-            const IP1 = restart ? IP - CELL : IP;
-            const w = mem.getInt32(IP1);
-            setIP(IP1 + CELL);
-            const x = mem.getInt32(w);
-            const xt = codeTable[x];
-            const result = xt(w + CELL, restart);
-            if (run) {
-                if (result) {
-                    setTimeout(() => loop(true));
-                } else {
-                    loop();
-                }
-            } else {
-                resolve();
-            }
-        };
-        loop();
+        (function loop(restart = false) {
+            const result = interpTick(restart);
+            if (run) setTimeout(() => loop(result));
+            else resolve();
+        })();
     });
 };
 
@@ -513,8 +530,8 @@ export const interpreter = (word: Ptr): Promise<unknown> => {
 
 // HEADER(exit, 0, 'exit');
 // HEADER(execute, 0, 'EXECUTE');
-HEADER(lit, 0, 'lit');
-HEADER(dup, 0, 'DUP');
+// HEADER(lit, 0, 'lit');
+// HEADER(dup, 0, 'DUP');
 // HEADER(qdup, dup, 0, "\004?DUP");
 // HEADER(drop, qdup, 0, "\004DROP");
 // HEADER(swap, drop, 0, "\004SWAP");

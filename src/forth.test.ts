@@ -1,9 +1,9 @@
-import {
-    bye, dup, $exit, interpreter, key, lit,
-} from './forth';
 import { pdepth, ppop } from './stacks';
 import { appendInputBuffer, setInputBuffer } from './io';
-import { THREAD } from './utils';
+import { getPrimitives, THREAD } from './utils';
+import { interpreter } from './forth';
+
+const { bye, dup, lit, key, $exit } = getPrimitives();
 
 it('should dup literal 2', async () => {
     const t = THREAD('enter', lit, 2, dup, bye);

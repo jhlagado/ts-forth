@@ -17,7 +17,7 @@ export const appendOutputBuffer = (value: string): void => {
     setOutputBuffer(outputBuffer + value);
 };
 
-export const getquery = (): boolean => inputBuffer.length > 0 && Math.random() < 0.1;
+export const getquery = (): boolean => inputBuffer.length > 0;
 
 export const getch = (): number => {
     if (inputBuffer.length === 0) return 0;
