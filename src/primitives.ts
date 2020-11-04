@@ -1,15 +1,9 @@
 import { CELL } from './constants';
 import { Ptr } from './types';
-import {
-    ppeek, ppoke, ppop, ppush, rpeek, rpoke, rpop, rpush,
-} from './stacks';
-import {
-    PSP, setPSP, RSP, setRSP, IP, setIP, setRun, 
-} from './variables';
+import { ppeek, ppoke, ppop, ppush, rpeek, rpoke, rpop, rpush } from './stacks';
+import { PSP, setPSP, RSP, setRSP, IP, setIP, setRun } from './variables';
 import { mem } from './memory';
-import {
-    appendOutputBuffer, getch, getquery, putch,
-} from './io';
+import { appendOutputBuffer, getch, getquery, putch } from './io';
 import { asBool } from './utils';
 
 export function enter(pfa?: Ptr): void {
@@ -17,8 +11,12 @@ export function enter(pfa?: Ptr): void {
     setIP(pfa!); /* IP points to thread */
 }
 
-export function exit(): void {
+export function $exit(): void {
     setIP(rpop()); /* pop IP from return stack */
+}
+
+export function $yield(_pfa?: Ptr, retry?: boolean): void | boolean {
+    return retry ? undefined : true;
 }
 
 export function lit(): void {
@@ -156,4 +154,3 @@ export function dot(): void {
 export function bye(): void {
     setRun(false);
 }
-

@@ -1,5 +1,5 @@
 import {
-    bye, dup, exit, interpreter, key, lit,
+    bye, dup, $exit, interpreter, key, lit,
 } from './forth';
 import { pdepth, ppop } from './stacks';
 import { appendInputBuffer, setInputBuffer } from './io';
@@ -15,7 +15,7 @@ it('should dup literal 2', async () => {
 });
 
 it('should call a thread from another thread', async () => {
-    const t = THREAD('enter', lit, 5, exit);
+    const t = THREAD('enter', lit, 5, $exit);
     const t1 = THREAD('enter', t, bye);
     await interpreter(t1);
     expect(pdepth()).toBe(1);
@@ -38,7 +38,7 @@ it('should read a char from a thread', async () => {
         appendInputBuffer('abc');
     }, 100);
     setInputBuffer('');
-    const t = THREAD('enter', key, exit);
+    const t = THREAD('enter', key, $exit);
     const t1 = THREAD('enter', t, bye);
     await interpreter(t1);
     expect(pdepth()).toBe(1);

@@ -1,13 +1,12 @@
 /* eslint-disable import/extensions */
-import {
-    IP, pstack, rstack, run, setIP, setPSP, setRSP, setRun,
-} from './variables';
+import { IP, pstack, rstack, run, setIP, setPSP, setRSP, setRun } from './variables';
 import { PSTACKSIZE, RSTACKSIZE, CELL } from './constants';
 import { Ptr } from './types';
 import { mem } from './memory';
 import { PRIMITIVE, HEADER, codeTable } from './utils';
 
-export const exit = PRIMITIVE('exit');
+export const $exit = PRIMITIVE('$exit');
+export const $yield = PRIMITIVE('$yield');
 export const bye = PRIMITIVE('bye');
 export const lit = PRIMITIVE('lit');
 export const dup = PRIMITIVE('dup');
