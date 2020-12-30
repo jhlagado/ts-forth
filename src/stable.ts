@@ -146,7 +146,7 @@ const EMIT = () => {
     sp--;
 };
 
-const B5 = () => {
+const NEGATE = () => {
     updi32(sp, (val) => -val);
 };
 
@@ -233,7 +233,7 @@ const CALL = () => {
     ip--;
 };
 
-const B1 = () => {
+const LOOP = () => {
     rp++;
     seti32(rp, ip);
     if (geti32(sp) === 0) {
@@ -246,11 +246,11 @@ const B1 = () => {
     }
 };
 
-const B2 = () => {
+const DROP = () => {
     sp--;
 };
 
-const B3 = () => {
+const ENDLOOP = () => {
     if (geti32(sp) !== 0) {
         ip = geti32(rp);
     } else {
@@ -259,7 +259,7 @@ const B3 = () => {
     sp--;
 };
 
-const B4 = () => {
+const KEY = () => {
     let ch = getch();
     if (ch === EOF) {
         ch = 0;
@@ -268,7 +268,7 @@ const B4 = () => {
     seti32(sp, ch);
 };
 
-const B6 = () => {
+const CHAR = () => {
     ip++;
     while (geti8(ip) !== CTICK) {
         ex += String.fromCharCode(geti8(ip));
@@ -311,7 +311,7 @@ const q = [
     LESS, EQUAL, GREATER, FETCH, OVER, CALL, CALL, CALL, CALL, CALL, 
     CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, 
     CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, 
-    CALL, B1, B2, B3, B4, B5, B6, REG, REG, REG, 
+    CALL, LOOP, DROP, ENDLOOP, KEY, NEGATE, CHAR, REG, REG, REG, 
     REG, REG, REG, REG, REG, REG, REG, REG, REG, REG, 
     REG, REG, REG, REG, REG, REG, REG, REG, REG, REG, 
     REG, REG, REG, DEF, OR, ENDDEF, NOT, 
