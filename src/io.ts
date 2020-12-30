@@ -13,10 +13,6 @@ export const setOutputBuffer = (value: string): void => {
     outputBuffer = value;
 };
 
-export const appendOutputBuffer = (value: string): void => {
-    setOutputBuffer(outputBuffer + value);
-};
-
 export const getquery = (): boolean => inputBuffer.length > 0;
 
 export const getch = (): number => {
@@ -28,4 +24,8 @@ export const getch = (): number => {
 
 export const putch = (value: number): void => {
     outputBuffer += String.fromCodePoint(value);
+};
+
+export const putStr = (value: string): void => {
+    outputBuffer += value;
 };

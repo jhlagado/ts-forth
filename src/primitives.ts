@@ -3,7 +3,7 @@ import { Ptr } from './types';
 import { ppeek, ppoke, ppop, ppush, rpeek, rpoke, rpop, rpush } from './stacks';
 import { PSP, setPSP, RSP, setRSP, IP, setIP, setRun } from './variables';
 import { mem } from './memory';
-import { appendOutputBuffer, getch, getquery, putch } from './io';
+import { putStr, getch, getquery, putch } from './io';
 import { asBool } from './utils';
 
 export function enter(pfa?: Ptr): void {
@@ -146,7 +146,7 @@ export function keyq(): void {
 
 export function dot(): void {
     /* temporary definition for testing */
-    appendOutputBuffer(ppop().toString());
+    putStr(ppop().toString());
 }
 
 /// ///////////////////////////////////////////////////////////////////////

@@ -44,7 +44,7 @@ module.exports = {
         'import/no-mutable-exports': 0,
         'import/no-unresolved': 0,
         'import/prefer-default-export': 0,
-        'max-lines': ['error', { max: 400, skipComments: true }],
+        'max-lines': ['error', { max: 500, skipComments: true }],
         'no-alert': 0,
         'no-bitwise': 0,
         'no-console': 0,

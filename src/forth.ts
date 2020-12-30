@@ -47,7 +47,7 @@ export
  */
 const interpreter = (word: Ptr): Promise<unknown> => {
     interpReset(word);
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
         (function loop(restart = false) {
             const result = interpTick(restart);
             if (run) setTimeout(() => loop(result));
