@@ -39,245 +39,273 @@ const CTICK = '`'.charCodeAt(0);
 
 let ex = '';
 
-let c = 0;
-let u = 0;
-let k = 0;
-let i = 0;
+let ipChar = 0;
+let incMode = 0;
 let selectedReg = 0;
 let rp = 0;
 let ip = 0;
-let mx = 0;
-let s = 0;
-let f = 0;
+let sp = 0;
 
-function NOP() {}
-function f33() {
-    seti32(geti32(selectedReg), geti32(s));
-    s--;
-}
-function REG() {
-    k = 1;
-    selectedReg = u;
-}
-function PRINT() {
+const NOP = () => {};
+
+const STORE = () => {
+    seti32(geti32(selectedReg), geti32(sp));
+    sp--;
+};
+
+const REG = () => {
+    incMode = 1;
+    selectedReg = ipChar;
+};
+
+const PRINT = () => {
     ip++;
-    u = geti8(ip);
-    while (u !== CQUOTE) {
-        putch(u);
+    ipChar = geti8(ip);
+    while (ipChar !== CQUOTE) {
+        putch(ipChar);
         ip++;
-        u = geti8(ip);
+        ipChar = geti8(ip);
     }
-}
-function DUP() {
-    s++;
-    seti32(s, geti32(s - 1));
-}
-function MUL() {
-    updi32(s - 1, (val) => val * geti32(s));
-    s--;
-}
-function SWAP() {
-    i = geti32(s);
-    seti32(s, geti32(s - 1));
-    seti32(s - 1, i);
-}
-function MOD() {
-    updi32(s - 1, (val) => val % geti32(s));
-    s--;
-}
-function AND() {
-    updi32(s - 1, (val) => val & geti32(s));
-    s--;
-}
-function EXT() {
+};
+
+const DUP = () => {
+    sp++;
+    seti32(sp, geti32(sp - 1));
+};
+
+const MUL = () => {
+    updi32(sp - 1, (val) => val * geti32(sp));
+    sp--;
+};
+
+const SWAP = () => {
+    const i = geti32(sp);
+    seti32(sp, geti32(sp - 1));
+    seti32(sp - 1, i);
+};
+
+const MOD = () => {
+    updi32(sp - 1, (val) => val % geti32(sp));
+    sp--;
+};
+
+const AND = () => {
+    updi32(sp - 1, (val) => val & geti32(sp));
+    sp--;
+};
+
+const EXTERNAL = () => {
     ip++;
-    u = geti8(ip);
-    if (u === CAPOS) {
-        setf32(s, geti32(s));
-    } else if (u === CZERO) {
-        seti32(s, getf32(s));
-    } else if (u === CDOT) {
-        putStr(getf32(s).toString());
-        s--;
-    } else if (u === CPLUS) {
-        updf32(s - 1, (val) => val + getf32(s));
-        s--;
-    } else if (u === CMINUS) {
-        updf32(s - 1, (val) => val - getf32(s));
-        s--;
-    } else if (u === CSTAR) {
-        updf32(s - 1, (val) => val * getf32(s));
-        s--;
-    } else if (u === CSLASH) {
-        updf32(s - 1, (val) => val / getf32(s));
-        s--;
+    ipChar = geti8(ip);
+    if (ipChar === CAPOS) {
+        setf32(sp, geti32(sp));
+    } else if (ipChar === CZERO) {
+        seti32(sp, getf32(sp));
+    } else if (ipChar === CDOT) {
+        putStr(getf32(sp).toString());
+        sp--;
+    } else if (ipChar === CPLUS) {
+        updf32(sp - 1, (val) => val + getf32(sp));
+        sp--;
+    } else if (ipChar === CMINUS) {
+        updf32(sp - 1, (val) => val - getf32(sp));
+        sp--;
+    } else if (ipChar === CSTAR) {
+        updf32(sp - 1, (val) => val * getf32(sp));
+        sp--;
+    } else if (ipChar === CSLASH) {
+        updf32(sp - 1, (val) => val / getf32(sp));
+        sp--;
     }
-}
-function IF() {
-    if (geti32(s) === 0) {
-        s--;
+};
+
+const IF = () => {
+    if (geti32(sp) === 0) {
+        sp--;
         ip++;
-        u = geti8(ip);
-        while (u !== CCPAREN) {
+        ipChar = geti8(ip);
+        while (ipChar !== CCPAREN) {
             ip++;
-            u = geti8(ip);
+            ipChar = geti8(ip);
         }
     } else {
-        s--;
+        sp--;
     }
-}
-function ADD() {
-    if (k === 0) {
-        updi32(s - 1, (val) => val + geti32(s));
-        s--;
+};
+const ADD = () => {
+    if (incMode === 0) {
+        updi32(sp - 1, (val) => val + geti32(sp));
+        sp--;
     } else {
         updi32(selectedReg, (val) => val + 1);
     }
-}
-function EMIT() {
-    putch(geti32(s));
-    s--;
-}
-function B5() {
-    updi32(s, (val) => -val);
-}
-function SUB() {
-    if (k === 0) {
-        updi32(s - 1, (val) => val - geti32(s));
-        s--;
+};
+
+const EMIT = () => {
+    putch(geti32(sp));
+    sp--;
+};
+
+const B5 = () => {
+    updi32(sp, (val) => -val);
+};
+
+const SUB = () => {
+    if (incMode === 0) {
+        updi32(sp - 1, (val) => val - geti32(sp));
+        sp--;
     } else {
         updi32(selectedReg, (val) => val - 1);
     }
-}
-function DOT() {
-    putStr(geti32(s).toString());
-    s--;
-}
-function DIV() {
-    updi32(s - 1, (val) => val / geti32(s));
-    s--;
-}
-function DIGIT() {
-    i = 0;
-    while (u >= CZERO && u <= CNINE) {
-        i = i * 10 + u - CZERO;
+};
+
+const DOT = () => {
+    putStr(geti32(sp).toString());
+    sp--;
+};
+
+const DIV = () => {
+    updi32(sp - 1, (val) => val / geti32(sp));
+    sp--;
+};
+
+const DIGIT = () => {
+    let i = 0;
+    while (ipChar >= CZERO && ipChar <= CNINE) {
+        i = i * 10 + ipChar - CZERO;
         ip++;
-        u = geti8(ip);
+        ipChar = geti8(ip);
     }
-    s++;
-    seti32(s, i);
+    sp++;
+    seti32(sp, i);
     ip--;
-}
-function RSET() {
-    seti32(selectedReg, geti32(s));
-    s--;
-}
-function RGET() {
-    s++;
-    seti32(s, geti32(selectedReg));
-}
-function LESS() {
-    if (geti32(s) > geti32(s - 1)) {
-        seti32(s, -1);
+};
+
+const RSET = () => {
+    seti32(selectedReg, geti32(sp));
+    sp--;
+};
+
+const RGET = () => {
+    sp++;
+    seti32(sp, geti32(selectedReg));
+};
+
+const LESS = () => {
+    if (geti32(sp) > geti32(sp - 1)) {
+        seti32(sp, -1);
     } else {
-        seti32(s, 0);
+        seti32(sp, 0);
     }
-}
-function EQUAL() {
-    if (geti32(s) === geti32(s - 1)) {
-        seti32(s, -1);
+};
+
+const EQUAL = () => {
+    if (geti32(sp) === geti32(sp - 1)) {
+        seti32(sp, -1);
     } else {
-        seti32(s, 0);
+        seti32(sp, 0);
     }
-}
-function GREATER() {
-    if (geti32(s) < geti32(s - 1)) {
-        seti32(s, -1);
+};
+
+const GREATER = () => {
+    if (geti32(sp) < geti32(sp - 1)) {
+        seti32(sp, -1);
     } else {
-        seti32(s, 0);
+        seti32(sp, 0);
     }
-}
-function FETCH() {
-    s++;
-    seti32(s, geti32(geti32(selectedReg)));
-}
-function OVER() {
-    seti32(s + 1, geti32(s - 1));
-    s++;
-}
-function CALL() {
+};
+
+const FETCH = () => {
+    sp++;
+    seti32(sp, geti32(geti32(selectedReg)));
+};
+
+const OVER = () => {
+    seti32(sp + 1, geti32(sp - 1));
+    sp++;
+};
+
+const CALL = () => {
     rp++;
     seti32(rp, ip);
-    ip = geti32(u);
-    u = geti8(ip);
+    ip = geti32(ipChar);
+    ipChar = geti8(ip);
     ip--;
-}
-function B1() {
+};
+
+const B1 = () => {
     rp++;
     seti32(rp, ip);
-    if (geti32(s) === 0) {
+    if (geti32(sp) === 0) {
         ip++;
-        u = geti8(ip);
-        while (u !== CCBRACK) {
+        ipChar = geti8(ip);
+        while (ipChar !== CCBRACK) {
             ip++;
-            u = geti8(ip);
+            ipChar = geti8(ip);
         }
     }
-}
-function B2() {
-    s--;
-}
-function B3() {
-    if (geti32(s) !== 0) {
+};
+
+const B2 = () => {
+    sp--;
+};
+
+const B3 = () => {
+    if (geti32(sp) !== 0) {
         ip = geti32(rp);
     } else {
         rp--;
     }
-    s--;
-}
-function B4() {
-    c = getch();
-    if (c === EOF) {
-        c = 0;
+    sp--;
+};
+
+const B4 = () => {
+    let ch = getch();
+    if (ch === EOF) {
+        ch = 0;
     }
-    s++;
-    seti32(s, c);
-}
-function B6() {
-    x = 0;
+    sp++;
+    seti32(sp, ch);
+};
+
+const B6 = () => {
     ip++;
     while (geti8(ip) !== CTICK) {
         ex += String.fromCharCode(geti8(ip));
         ip++;
     }
     console.log(ex);
-}
-function DEF() {
+};
+
+const DEF = () => {
     const defCode = geti8(ip + 1);
     seti32(defCode, ip + 2);
-    while (u !== CCBRACE) {
+    while (ipChar !== CCBRACE) {
         ip++;
-        u = geti8(ip);
+        ipChar = geti8(ip);
     }
-}
-function OR() {
-    updi32(s - 1, (val) => val | geti32(s));
-    s--;
-}
-function ENDDEF() {
+};
+
+const OR = () => {
+    updi32(sp - 1, (val) => val | geti32(sp));
+    sp--;
+};
+
+const ENDDEF = () => {
     ip = geti32(rp);
     rp--;
-}
-function NOT() {
-    updi32(s, (val) => ~val);
-}
+};
+
+const NOT = () => {
+    updi32(sp, (val) => ~val);
+};
 
 // prettier-ignore
 const q = [ 
     NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, 
     NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, 
     NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, 
-    NOP, NOP, NOP, f33, PRINT, DUP, SWAP, MOD, AND, EXT, 
+    NOP, NOP, NOP, STORE, PRINT, DUP, SWAP, MOD, AND, EXTERNAL, 
     IF, NOP, MUL, ADD, EMIT, SUB, DOT, DIV, DIGIT, DIGIT, 
     DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, RSET, RGET, 
     LESS, EQUAL, GREATER, FETCH, OVER, CALL, CALL, CALL, CALL, CALL, 
@@ -289,29 +317,28 @@ const q = [
     REG, REG, REG, DEF, OR, ENDDEF, NOT, 
 ];
 
-function main() {
-    for (i = 0; i < 2400; i++) {
+const main = () => {
+    for (let i = 0; i < 2400; i++) {
         seti32(i, 0);
     }
     ip = 8000;
     for (;;) {
-        c = getch();
-        if (c === EOF) break;
-        seti8(ip++, c);
+        const ch = getch();
+        if (ch === EOF) break;
+        seti8(ip++, ch);
     }
-    mx = ip;
+    const endOfCode = ip;
     ip = 8000;
-    s = 140;
+    sp = 140;
     rp = 20;
-    while (ip <= mx) {
-        u = geti8(ip);
-        q[u]();
-        if (u < CLOWERA) {
-            k = 0;
-        } else if (u > CLOWERZ) {
-            k = 0;
+    while (ip <= endOfCode) {
+        ipChar = geti8(ip);
+        q[ipChar]();
+        if (ipChar < CLOWERA) {
+            incMode = 0;
+        } else if (ipChar > CLOWERZ) {
+            incMode = 0;
         }
         ip++;
     }
-    return 0;
-}
+};
