@@ -1,4 +1,6 @@
-import { appendInputBuffer, outputBuffer, setOutputBuffer } from './io';
+import 'regenerator-runtime/runtime';
+import { appendInputBuffer, outputBuffer, putStr, setOutputBuffer } from './io';
+import { getPrompt, interpReset, interpret } from './stable';
 
 export const log = (message: string): void => {
     const wrapper = document.getElementById('wrapper');
@@ -10,13 +12,14 @@ inputSource.onblur = () => {
     inputSource.focus();
 };
 
-inputSource.addEventListener('keyup', (event: KeyboardEvent) => {
+inputSource.addEventListener('keyup', async (event: KeyboardEvent) => {
     event.preventDefault();
     if (!(event.keyCode === 13)) return;
     const text = (inputSource as any).value;
     (inputSource as any).value = '';
     appendInputBuffer(text);
-    log(`> ${text}`);
+    log(`${getPrompt()} > ${text}`);
+    await interpret(text);
 });
 
 const loop = () => {
@@ -28,4 +31,6 @@ const loop = () => {
 };
 loop();
 
-setOutputBuffer('ts-forth');
+setOutputBuffer('');
+putStr('STABLE');
+interpReset();

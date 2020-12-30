@@ -16,8 +16,12 @@
 // /*130*/ flt,   unflt, dbg,    traceon, traceoff,version1,mstime, edit,  load,   block,
 // /*140*/ trace, quit,  blocknr,btod,    dtob,    noop,    noop,   noop,  noop,   noop,
 
-import { getch, putch, putStr } from './io';
+import { CELL, DATA_SIZE, START_DATA, START_PROG } from './constants';
+import { getch, getquery, putch, putStr } from './io';
 import { getf32, geti32, geti8, setf32, seti32, seti8, updf32, updi32 } from './memory';
+
+let run;
+let here;
 
 const EOF = 5;
 
@@ -32,6 +36,7 @@ const CSTAR = '*'.charCodeAt(0);
 const CSLASH = '/'.charCodeAt(0);
 const CCPAREN = ')'.charCodeAt(0);
 const CCBRACK = ']'.charCodeAt(0);
+const COBRACE = '{'.charCodeAt(0);
 const CCBRACE = '}'.charCodeAt(0);
 const CLOWERA = 'a'.charCodeAt(0);
 const CLOWERZ = 'z'.charCodeAt(0);
@@ -260,6 +265,7 @@ const ENDLOOP = () => {
 };
 
 const KEY = () => {
+    if (!getquery()) return true;
     let ch = getch();
     if (ch === EOF) {
         ch = 0;
@@ -317,28 +323,100 @@ const q = [
     REG, REG, REG, DEF, OR, ENDDEF, NOT, 
 ];
 
-const main = () => {
-    for (let i = 0; i < 2400; i++) {
-        seti32(i, 0);
+export const getPrompt = (): string => {
+    return '!!!!!';
+};
+
+export const interpReset = (): void => {
+    for (let i = START_DATA; i < DATA_SIZE; i++) {
+        seti8(i, 0);
     }
-    ip = 8000;
-    for (;;) {
-        const ch = getch();
-        if (ch === EOF) break;
-        seti8(ip++, ch);
-    }
-    const endOfCode = ip;
-    ip = 8000;
+    here = START_PROG;
     sp = 140;
     rp = 20;
-    while (ip <= endOfCode) {
-        token = geti8(ip);
-        q[token]();
-        if (token < CLOWERA) {
-            incMode = 0;
-        } else if (token > CLOWERZ) {
-            incMode = 0;
-        }
-        ip++;
-    }
+    run = true;
 };
+
+const interpTick = (restart?: boolean): boolean => {
+    let restarting = restart;
+    while (run && ip <= here) {
+        if (restarting) ip--;
+        token = geti8(ip);
+        ip++;
+        putch(token);
+        const result = Boolean(q[token]());
+        // const result = false;
+        restarting = false;
+        if (result) return true;
+    }
+    return false;
+};
+
+export const interpret = async (text: string): Promise<string> => {
+    const oldHere = here;
+    let restore = true;
+    for (const char of text) {
+        const code = char.codePointAt(0);
+        if (code === COBRACE) restore = true;
+        seti8(here++, code!);
+    }
+    ip = oldHere;
+    await new Promise<void>((resolve) => {
+        (function loop(restart = false) {
+            const result = interpTick(restart);
+            if (run && ip <= here) setTimeout(() => loop(result));
+            else resolve();
+        })();
+    });
+    if (restore && ip > here) here = oldHere;
+    return '!!!!';
+};
+
+// const interpTick = (restart?: boolean): boolean => {
+//     let restarting = restart;
+//     while (run) {
+//         const ip1 = restarting ? ip - CELL : ip;
+//         const w = mem.getInt32(IP1);
+//         setIP(IP1 + CELL);
+//         const x = mem.getInt32(w);
+//         const xt = codeTable[x];
+//         const result = xt(w + CELL, restarting);
+//         restarting = false;
+//         if (result) return true;
+//     }
+//     return false;
+// };
+
+// export const interpreter = (word: Ptr): Promise<unknown> => {
+//     interpReset(word);
+//     return new Promise<void>((resolve) => {
+//         (function loop(restart = false) {
+//             const result = interpTick(restart);
+//             if (run) setTimeout(() => loop(result));
+//             else resolve();
+//         })();
+//     });
+// };
+
+// export const stableInterp = () => {
+//     ip = START_PROG;
+//     for (;;) {
+//         const ch = getch();
+//         if (ch === EOF) break;
+//         seti8(ip++, ch);
+//     }
+//     here = ip;
+//     ip = START_PROG;
+//     sp = 140;
+//     rp = 20;
+//     while (ip <= here) {
+//         token = geti8(ip);
+//         q[token]();
+//         if (token < CLOWERA) {
+//             incMode = 0;
+//         } else if (token > CLOWERZ) {
+//             incMode = 0;
+//         }
+//         ip++;
+//     }
+// };
