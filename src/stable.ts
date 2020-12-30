@@ -43,30 +43,29 @@ let c = 0;
 let u = 0;
 let k = 0;
 let i = 0;
-let v = 0;
-let r = 0;
-let p = 0;
+let selectedReg = 0;
+let rp = 0;
+let ip = 0;
 let mx = 0;
 let s = 0;
 let f = 0;
-let x = 0;
 
 function NOP() {}
 function f33() {
-    seti32(geti32(v), geti32(s));
+    seti32(geti32(selectedReg), geti32(s));
     s--;
 }
 function REG() {
     k = 1;
-    v = u;
+    selectedReg = u;
 }
 function PRINT() {
-    p++;
-    u = geti8(p);
+    ip++;
+    u = geti8(ip);
     while (u !== CQUOTE) {
         putch(u);
-        p++;
-        u = geti8(p);
+        ip++;
+        u = geti8(ip);
     }
 }
 function DUP() {
@@ -91,8 +90,8 @@ function AND() {
     s--;
 }
 function EXT() {
-    p++;
-    u = geti8(p);
+    ip++;
+    u = geti8(ip);
     if (u === CAPOS) {
         setf32(s, geti32(s));
     } else if (u === CZERO) {
@@ -117,11 +116,11 @@ function EXT() {
 function IF() {
     if (geti32(s) === 0) {
         s--;
-        p++;
-        u = geti8(p);
+        ip++;
+        u = geti8(ip);
         while (u !== CCPAREN) {
-            p++;
-            u = geti8(p);
+            ip++;
+            u = geti8(ip);
         }
     } else {
         s--;
@@ -132,7 +131,7 @@ function ADD() {
         updi32(s - 1, (val) => val + geti32(s));
         s--;
     } else {
-        updi32(v, (val) => val + 1);
+        updi32(selectedReg, (val) => val + 1);
     }
 }
 function EMIT() {
@@ -147,7 +146,7 @@ function SUB() {
         updi32(s - 1, (val) => val - geti32(s));
         s--;
     } else {
-        updi32(v, (val) => val - 1);
+        updi32(selectedReg, (val) => val - 1);
     }
 }
 function DOT() {
@@ -162,20 +161,20 @@ function DIGIT() {
     i = 0;
     while (u >= CZERO && u <= CNINE) {
         i = i * 10 + u - CZERO;
-        p++;
-        u = geti8(p);
+        ip++;
+        u = geti8(ip);
     }
     s++;
     seti32(s, i);
-    p--;
-}
-function RGET() {
-    seti32(v, geti32(s));
-    s--;
+    ip--;
 }
 function RSET() {
+    seti32(selectedReg, geti32(s));
+    s--;
+}
+function RGET() {
     s++;
-    seti32(s, geti32(v));
+    seti32(s, geti32(selectedReg));
 }
 function LESS() {
     if (geti32(s) > geti32(s - 1)) {
@@ -200,28 +199,28 @@ function GREATER() {
 }
 function FETCH() {
     s++;
-    seti32(s, geti32(geti32(v)));
+    seti32(s, geti32(geti32(selectedReg)));
 }
 function OVER() {
     seti32(s + 1, geti32(s - 1));
     s++;
 }
 function CALL() {
-    r++;
-    seti32(r, p);
-    p = geti32(u);
-    u = geti8(p);
-    p--;
+    rp++;
+    seti32(rp, ip);
+    ip = geti32(u);
+    u = geti8(ip);
+    ip--;
 }
 function B1() {
-    r++;
-    seti32(r, p);
+    rp++;
+    seti32(rp, ip);
     if (geti32(s) === 0) {
-        p++;
-        u = geti8(p);
+        ip++;
+        u = geti8(ip);
         while (u !== CCBRACK) {
-            p++;
-            u = geti8(p);
+            ip++;
+            u = geti8(ip);
         }
     }
 }
@@ -230,9 +229,9 @@ function B2() {
 }
 function B3() {
     if (geti32(s) !== 0) {
-        p = geti32(r);
+        ip = geti32(rp);
     } else {
-        r--;
+        rp--;
     }
     s--;
 }
@@ -246,19 +245,19 @@ function B4() {
 }
 function B6() {
     x = 0;
-    p++;
-    while (geti8(p) !== CTICK) {
-        ex += String.fromCharCode(geti8(p));
-        p++;
+    ip++;
+    while (geti8(ip) !== CTICK) {
+        ex += String.fromCharCode(geti8(ip));
+        ip++;
     }
     console.log(ex);
 }
 function DEF() {
-    f = geti8(p + 1);
-    seti32(f, p + 2);
+    const defCode = geti8(ip + 1);
+    seti32(defCode, ip + 2);
     while (u !== CCBRACE) {
-        p++;
-        u = geti8(p);
+        ip++;
+        u = geti8(ip);
     }
 }
 function OR() {
@@ -266,8 +265,8 @@ function OR() {
     s--;
 }
 function ENDDEF() {
-    p = geti32(r);
-    r--;
+    ip = geti32(rp);
+    rp--;
 }
 function NOT() {
     updi32(s, (val) => ~val);
@@ -280,7 +279,7 @@ const q = [
     NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, NOP, 
     NOP, NOP, NOP, f33, PRINT, DUP, SWAP, MOD, AND, EXT, 
     IF, NOP, MUL, ADD, EMIT, SUB, DOT, DIV, DIGIT, DIGIT, 
-    DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, RGET, RSET, 
+    DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, DIGIT, RSET, RGET, 
     LESS, EQUAL, GREATER, FETCH, OVER, CALL, CALL, CALL, CALL, CALL, 
     CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, 
     CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, CALL, 
@@ -294,25 +293,25 @@ function main() {
     for (i = 0; i < 2400; i++) {
         seti32(i, 0);
     }
-    p = 8000;
+    ip = 8000;
     for (;;) {
         c = getch();
         if (c === EOF) break;
-        seti8(p++, c);
+        seti8(ip++, c);
     }
-    mx = p;
-    p = 8000;
+    mx = ip;
+    ip = 8000;
     s = 140;
-    r = 20;
-    while (p <= mx) {
-        u = geti8(p);
+    rp = 20;
+    while (ip <= mx) {
+        u = geti8(ip);
         q[u]();
         if (u < CLOWERA) {
             k = 0;
         } else if (u > CLOWERZ) {
             k = 0;
         }
-        p++;
+        ip++;
     }
     return 0;
 }
