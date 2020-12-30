@@ -39,7 +39,7 @@ const CTICK = '`'.charCodeAt(0);
 
 let ex = '';
 
-let ipChar = 0;
+let token = 0;
 let incMode = 0;
 let selectedReg = 0;
 let rp = 0;
@@ -55,16 +55,16 @@ const STORE = () => {
 
 const REG = () => {
     incMode = 1;
-    selectedReg = ipChar;
+    selectedReg = token;
 };
 
 const PRINT = () => {
     ip++;
-    ipChar = geti8(ip);
-    while (ipChar !== CQUOTE) {
-        putch(ipChar);
+    token = geti8(ip);
+    while (token !== CQUOTE) {
+        putch(token);
         ip++;
-        ipChar = geti8(ip);
+        token = geti8(ip);
     }
 };
 
@@ -96,24 +96,24 @@ const AND = () => {
 
 const EXTERNAL = () => {
     ip++;
-    ipChar = geti8(ip);
-    if (ipChar === CAPOS) {
+    token = geti8(ip);
+    if (token === CAPOS) {
         setf32(sp, geti32(sp));
-    } else if (ipChar === CZERO) {
+    } else if (token === CZERO) {
         seti32(sp, getf32(sp));
-    } else if (ipChar === CDOT) {
+    } else if (token === CDOT) {
         putStr(getf32(sp).toString());
         sp--;
-    } else if (ipChar === CPLUS) {
+    } else if (token === CPLUS) {
         updf32(sp - 1, (val) => val + getf32(sp));
         sp--;
-    } else if (ipChar === CMINUS) {
+    } else if (token === CMINUS) {
         updf32(sp - 1, (val) => val - getf32(sp));
         sp--;
-    } else if (ipChar === CSTAR) {
+    } else if (token === CSTAR) {
         updf32(sp - 1, (val) => val * getf32(sp));
         sp--;
-    } else if (ipChar === CSLASH) {
+    } else if (token === CSLASH) {
         updf32(sp - 1, (val) => val / getf32(sp));
         sp--;
     }
@@ -123,10 +123,10 @@ const IF = () => {
     if (geti32(sp) === 0) {
         sp--;
         ip++;
-        ipChar = geti8(ip);
-        while (ipChar !== CCPAREN) {
+        token = geti8(ip);
+        while (token !== CCPAREN) {
             ip++;
-            ipChar = geti8(ip);
+            token = geti8(ip);
         }
     } else {
         sp--;
@@ -171,10 +171,10 @@ const DIV = () => {
 
 const DIGIT = () => {
     let i = 0;
-    while (ipChar >= CZERO && ipChar <= CNINE) {
-        i = i * 10 + ipChar - CZERO;
+    while (token >= CZERO && token <= CNINE) {
+        i = i * 10 + token - CZERO;
         ip++;
-        ipChar = geti8(ip);
+        token = geti8(ip);
     }
     sp++;
     seti32(sp, i);
@@ -228,8 +228,8 @@ const OVER = () => {
 const CALL = () => {
     rp++;
     seti32(rp, ip);
-    ip = geti32(ipChar);
-    ipChar = geti8(ip);
+    ip = geti32(token);
+    token = geti8(ip);
     ip--;
 };
 
@@ -238,10 +238,10 @@ const LOOP = () => {
     seti32(rp, ip);
     if (geti32(sp) === 0) {
         ip++;
-        ipChar = geti8(ip);
-        while (ipChar !== CCBRACK) {
+        token = geti8(ip);
+        while (token !== CCBRACK) {
             ip++;
-            ipChar = geti8(ip);
+            token = geti8(ip);
         }
     }
 };
@@ -280,9 +280,9 @@ const CHAR = () => {
 const DEF = () => {
     const defCode = geti8(ip + 1);
     seti32(defCode, ip + 2);
-    while (ipChar !== CCBRACE) {
+    while (token !== CCBRACE) {
         ip++;
-        ipChar = geti8(ip);
+        token = geti8(ip);
     }
 };
 
@@ -332,11 +332,11 @@ const main = () => {
     sp = 140;
     rp = 20;
     while (ip <= endOfCode) {
-        ipChar = geti8(ip);
-        q[ipChar]();
-        if (ipChar < CLOWERA) {
+        token = geti8(ip);
+        q[token]();
+        if (token < CLOWERA) {
             incMode = 0;
-        } else if (ipChar > CLOWERZ) {
+        } else if (token > CLOWERZ) {
             incMode = 0;
         }
         ip++;
