@@ -5,6 +5,8 @@ import { getPrompt, interpReset, interpret } from './stable';
 export const log = (message: string): void => {
     const output = document.getElementById('output');
     output!.innerHTML += `<div class='log'><p>${message}</p></div>`;
+    const screen = document.getElementById('screen');
+    screen!.scrollTop = screen!.scrollHeight;
 };
 
 const inputSource = document.getElementById('input_source')!;
