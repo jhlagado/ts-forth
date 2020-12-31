@@ -51,7 +51,9 @@ let rp = 0;
 let ip = 0;
 let sp = 0;
 
-const NOP = () => {};
+const NOP = () => {
+    // console.log('nop');
+};
 
 const STORE = () => {
     seti32(geti32(selectedReg), geti32(sp));
@@ -324,7 +326,13 @@ const q = [
 ];
 
 export const getPrompt = (): string => {
-    return '!!!!!';
+    // console.log({sp, x: geti32(sp)});
+    let s = '';
+    for (let i = 0; i < 4; i++) {
+        s += `${geti32(sp - 3 + i)} `;
+        // console.log({i, x: geti32(sp - 3 + i)});
+    }
+    return `${s}>`;
 };
 
 export const interpReset = (): void => {
@@ -342,17 +350,21 @@ const interpTick = (restart?: boolean): boolean => {
     while (run && ip <= here) {
         if (restarting) ip--;
         token = geti8(ip);
-        ip++;
-        putch(token);
+        console.log(token);
         const result = Boolean(q[token]());
-        // const result = false;
+        if (token < CLOWERA) {
+            incMode = 0;
+        } else if (token > CLOWERZ) {
+            incMode = 0;
+        }
         restarting = false;
+        ip++;
         if (result) return true;
     }
     return false;
 };
 
-export const interpret = async (text: string): Promise<string> => {
+export const interpret = async (text: string): Promise<void> => {
     const oldHere = here;
     let restore = true;
     for (const char of text) {
@@ -369,54 +381,4 @@ export const interpret = async (text: string): Promise<string> => {
         })();
     });
     if (restore && ip > here) here = oldHere;
-    return '!!!!';
 };
-
-// const interpTick = (restart?: boolean): boolean => {
-//     let restarting = restart;
-//     while (run) {
-//         const ip1 = restarting ? ip - CELL : ip;
-//         const w = mem.getInt32(IP1);
-//         setIP(IP1 + CELL);
-//         const x = mem.getInt32(w);
-//         const xt = codeTable[x];
-//         const result = xt(w + CELL, restarting);
-//         restarting = false;
-//         if (result) return true;
-//     }
-//     return false;
-// };
-
-// export const interpreter = (word: Ptr): Promise<unknown> => {
-//     interpReset(word);
-//     return new Promise<void>((resolve) => {
-//         (function loop(restart = false) {
-//             const result = interpTick(restart);
-//             if (run) setTimeout(() => loop(result));
-//             else resolve();
-//         })();
-//     });
-// };
-
-// export const stableInterp = () => {
-//     ip = START_PROG;
-//     for (;;) {
-//         const ch = getch();
-//         if (ch === EOF) break;
-//         seti8(ip++, ch);
-//     }
-//     here = ip;
-//     ip = START_PROG;
-//     sp = 140;
-//     rp = 20;
-//     while (ip <= here) {
-//         token = geti8(ip);
-//         q[token]();
-//         if (token < CLOWERA) {
-//             incMode = 0;
-//         } else if (token > CLOWERZ) {
-//             incMode = 0;
-//         }
-//         ip++;
-//     }
-// };
