@@ -13,7 +13,7 @@ body {
     overflow-y: scroll;
 }
 
-#wrapper {
+#output {
     display: table-cell;
     vertical-align: bottom;
     height: 100%;

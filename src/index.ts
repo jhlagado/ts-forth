@@ -3,8 +3,8 @@ import { appendInputBuffer, outputBuffer, putStr, setOutputBuffer } from './io';
 import { getPrompt, interpReset, interpret } from './stable';
 
 export const log = (message: string): void => {
-    const wrapper = document.getElementById('wrapper');
-    wrapper!.innerHTML += `<div class='log'><p>${message}</p></div>`;
+    const output = document.getElementById('output');
+    output!.innerHTML += `<div class='log'><p>${message}</p></div>`;
 };
 
 const inputSource = document.getElementById('input_source')!;
